@@ -1,0 +1,35 @@
+# Переменные сборки 
+CC = gcc
+CFLAGS = -Wall -O2 -fopenmp
+LDFLAGS = -L. -lgmp -lm -fopenmp
+
+# Имена файлов проекта
+LIB_SRC = LibPrimeNum.c
+LIB_OBJ = LibPrimeNum.o
+STATIC_LIB = libprimenumstac.a
+DYNAMIC_LIB = libprimenumdyn.so.1.0
+SONAME = libprimenumdyn.so.1
+LINKER_NAME = libprimenumdyn.so
+
+MAIN_SRC = main.c
+TARGET = main
+
+# Список абстрактных целей, не создающих одноименных файлов
+.PHONY: all static dynamic run clean
+
+# Цель по умолчанию 
+all: static dynamic $(TARGET)
+
+# Правила сборки библиотек
+
+# 1. Сборка статической библиотеки
+static:
+	$(CC) -c $(CFLAGS) $(LIB_SRC) -o $(LIB_OBJ)
+	ar crs $(STATIC_LIB) $(LIB_OBJ)
+
+# 2. Сборка динамической библиотеки
+dynamic:
+	$(CC) -c -fpic $(CFLAGS) $(LIB_SRC) -o $(LIB_OBJ)
+	$(CC) -shared -Wl,-soname,$(SONAME) -o $(DYNAMIC_LIB) $(LIB_OBJ)
+	ln -sf $(DYNAMIC_LIB) libprimenumdyn.so
+	ln -sf $(DYNAMIC_LIB) $(SONAME)
